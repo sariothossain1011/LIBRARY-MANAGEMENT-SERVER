@@ -24,6 +24,10 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    createdDate:{
+      type:Date,
+      default:Date.now(),
+    }
   },
   { timestamps: false, versionKey: false }
 );

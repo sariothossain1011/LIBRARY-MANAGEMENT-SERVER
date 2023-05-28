@@ -26,12 +26,10 @@ exports.registration = async (req, res) => {
 
     const existUser = await UserModel.findOne({ email: req.body.email });
     if (existUser) {
-      return res
-        .status(400)
-        .json({
-          status: "fail",
-          message: "This email already exist. Try another one.",
-        });
+      return res.status(400).json({
+        status: "fail",
+        message: "This email already exist. Try another one.",
+      });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -88,5 +86,73 @@ exports.login = async (req, res) => {
       .json({ status: "success", token: token, data: responseData });
   } catch (error) {
     res.status(400).json({ status: "fail", data: error.toString() });
+  }
+};
+
+exports.findUser = async (req, res) => {
+  try {
+    const data = await UserModel.findById(req.params.id).select("-password");
+    if (!data) {
+      res
+        .status(400)
+        .json({ success: "fail", message: "The user is not found" });
+    } else {
+      res.status(200).json({ success: "success", data: data });
+    }
+  } catch (error) {
+    return res.status(400).json({ success: "fail", data: error.toString() });
+  }
+};
+
+exports.findUserList = async (req, res) => {
+  try {
+    const data = await UserModel.find().select("-password -isAdmin");
+    if (!data) {
+      res
+        .status(400)
+        .json({ success: "fail", message: "Not found user list !" });
+    } else {
+      res.status(200).json({ success: "success", data: data });
+    }
+  } catch (error) {
+    return res.status(400).json({ success: "fail", data: error.toString() });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const postBody = req.body;
+    const data = await UserModel.findByIdAndUpdate(req.params.id, postBody, {
+      new: true,
+    }).select("-password -isAdmin");
+    if (!data) {
+      return res
+        .status(404)
+        .send({ success: "fail", message: "Update fail !" });
+    }
+    res.status(200).json({ success: "success", data: data });
+  } catch (error) {
+    return res.status(400).json({ success: "fail", data: error.toString() });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const data = await UserModel.findById(req.params.id);
+    if (!data) return res.status(400).send("Invalid User");
+
+    await UserModel.findByIdAndDelete(req.params.id ).then((data) => {
+      if (data) {
+        return res
+          .status(200)
+          .send({ success: "success", message: "User is deleted!" });
+      } else {
+        return res
+          .status(400)
+          .send({ success: "fail", message: "User delete fail!" });
+      }
+    });
+  } catch (error) {
+    return res.status(400).json({ success: "fail", data: error.toString() });
   }
 };
