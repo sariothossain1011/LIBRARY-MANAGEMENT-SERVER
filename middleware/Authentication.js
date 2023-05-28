@@ -1,28 +1,28 @@
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/users/UserModel");
 
-exports.RequireSignIn = (req, res, next) => {
+exports.requireSignIn = (req, res, next) => {
   try {
     let tmp = req.header("Authorization");
     const token = tmp && tmp.split(" ")[1];
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    req.user = decoded;
+
+    req.user = decoded["data"];
     next();
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ status: "fail", data: error.toString() });
   }
 };
 
-exports.IsAdmin = async (req, res, next) => {
+exports.isAdmin = async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.user.id);
-    // console.log(user)
     if (user.isAdmin !== true) {
-      return res.status(401).send("Unauthorized Admin");
+    return res.status(401).send({message :"Unauthorized Admin"});
     } else {
       next();
     }
-  } catch (err) {
-    console.log(err)
+  } catch (error) {
+    res.status(401).json({ status: "fail", data: error.toString() });
   }
 };

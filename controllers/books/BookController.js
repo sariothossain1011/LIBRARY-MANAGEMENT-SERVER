@@ -73,13 +73,12 @@ exports.findBook = async (req, res) => {
 exports.findBookList = async (req, res) => {
   try {
     const data = await BookModel.find().populate("categoryID");
-    if (!data) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Not Book found ",
-      });
+    const count = data.length; // Counting the number of users
+    
+    if (count === 0) {
+      res.status(400).json({ success: "fail", message: "Not found user book!" });
     } else {
-      return res.status(200).json({ status: "success", data: data });
+      res.status(200).json({ success: "success", count: count, data: data });
     }
   } catch (error) {
     return res.status(400).json({ status: "success", data: error.toString() });

@@ -79,7 +79,7 @@ exports.login = async (req, res) => {
         .json({ status: "fail", message: "Wrong password !" });
     }
 
-    const token = await CreateToken(data);
+    const token = await CreateToken({id:data._id});
     const { password: removedPassword, ...responseData } = data.toObject();
     res
       .status(200)
@@ -107,12 +107,12 @@ exports.findUser = async (req, res) => {
 exports.findUserList = async (req, res) => {
   try {
     const data = await UserModel.find().select("-password -isAdmin");
-    if (!data) {
-      res
-        .status(400)
-        .json({ success: "fail", message: "Not found user list !" });
+    const count = data.length; // Counting the number of users
+    
+    if (count === 0) {
+      res.status(400).json({ success: "fail", message: "Not found user list!" });
     } else {
-      res.status(200).json({ success: "success", data: data });
+      res.status(200).json({ success: "success", count: count, data: data });
     }
   } catch (error) {
     return res.status(400).json({ success: "fail", data: error.toString() });
@@ -141,7 +141,7 @@ exports.deleteUser = async (req, res) => {
     const data = await UserModel.findById(req.params.id);
     if (!data) return res.status(400).send("Invalid User");
 
-    await UserModel.findByIdAndDelete(req.params.id ).then((data) => {
+    await UserModel.findByIdAndDelete(req.params.id).then((data) => {
       if (data) {
         return res
           .status(200)
@@ -155,4 +155,24 @@ exports.deleteUser = async (req, res) => {
   } catch (error) {
     return res.status(400).json({ success: "fail", data: error.toString() });
   }
+};
+
+exports.updateIsAdmin = async (req, res) => {
+  const id = req.params.id;
+  const isAdmin = req.body.isAdmin;
+  const existUser = await UserModel.findOne({ id });
+    if (existUser) {
+      return res.status(400).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+  UserModel.findByIdAndUpdate(id, { $set: { isAdmin: isAdmin } }, { new: true })
+    .then((UpdateIsAdmin) => {
+      res.status(200).json(UpdateIsAdmin);
+    })
+    .catch((error) => {
+      return res.status(400).json({ success: false, message: error });
+    });
 };

@@ -1,14 +1,25 @@
-const express = require('express');
-const { registration, login, findUser, updateUser, deleteUser, findUserList } = require('../controllers/users/UserController');
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
+const {
+  registration,
+  login,
+  findUser,
+  updateUser,
+  deleteUser,
+  findUserList,
+  updateIsAdmin,
+} = require("../controllers/users/UserController");
 
+const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
-router.post('/registration',registration)
-router.get('/login',login)
-router.get('/findUser/:id',findUser)
-router.get('/findUserList/:id',findUserList)
-router.post('/updateUser/:id',updateUser)
-router.get('/deleteUser/:id',deleteUser)
-router.get('/findUserList/',findUserList)
+router.post("/registration", registration);
+router.get("/login", login);
+router.get("/findUser/:id", requireSignIn, findUser);
+router.get("/findUserList/:id", requireSignIn, findUserList);
+router.post("/updateUser/:id", requireSignIn, isAdmin, updateUser);
+router.get("/deleteUser/:id", requireSignIn, isAdmin, deleteUser);
+router.get("/findUserList/", requireSignIn, findUserList);
 
-module.exports = router ;
+router.post("/updateIsAdmin/:id", requireSignIn, isAdmin, updateIsAdmin);
+
+module.exports = router;

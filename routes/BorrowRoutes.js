@@ -1,0 +1,26 @@
+const express = require("express");
+const router = express.Router();
+const {
+  borrowRequest,
+  findBorrow,
+  findBorrowList,
+  deleteBorrow,
+  updateBorrowStatus,
+  statusList,
+} = require("../controllers/books/BorrowController");
+const { requireSignIn, isAdmin } = require("../middleware/Authentication");
+
+router.post("/borrowRequest", requireSignIn, borrowRequest);
+router.get("/findBorrow/:id", requireSignIn, findBorrow);
+router.get("/findBorrowList", requireSignIn, findBorrowList);
+router.post(
+  "/updateBorrowStatus/:id",
+  requireSignIn,
+  isAdmin,
+  updateBorrowStatus
+);
+router.get("/deleteBorrow/:id", requireSignIn, deleteBorrow);
+
+router.get("/statusList/:status",requireSignIn, statusList); // request/approved/cancelled/return
+
+module.exports = router;

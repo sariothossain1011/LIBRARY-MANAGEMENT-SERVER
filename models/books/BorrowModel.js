@@ -2,17 +2,19 @@ const mongoose = require("mongoose");
 
 const BorrowSchema = new mongoose.Schema(
   {
-    category: {
-      type: String,
+    bookID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "books",
+      required: true,
     },
-    category: {
-      type: String,
+    userID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
-    category: {
-      type: String,
-    },
-    category: {
-      type: String,
+    status:{
+      type:String,
+      default:"pending"
     },
     createdDate:{
         type:Date,

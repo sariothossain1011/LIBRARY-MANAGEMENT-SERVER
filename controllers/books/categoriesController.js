@@ -42,12 +42,12 @@ exports.findCategories = async (req, res) => {
 exports.findCategoriesList = async (req, res) => {
   try {
     const data = await CategoriesModel.find();
-    if (!data) {
-      res
-        .status(400)
-        .json({ success: "fail", message: "Not found categories list !" });
+    const count = data.length; // Counting the number of users
+    
+    if (count === 0) {
+      res.status(400).json({ success: "fail", message: "Not found user category!" });
     } else {
-      res.status(200).json({ success: "success", data: data });
+      res.status(200).json({ success: "success", count: count, data: data });
     }
   } catch (error) {
     return res.status(400).json({ success: "fail", data: error.toString() });
