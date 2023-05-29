@@ -1,5 +1,16 @@
+const mongoose = require("mongoose");
+
 const { hashPassword, comparePassword } = require("../../helper/HashPassword");
+const BorrowModel = require("../../models/books/BorrowModel");
 const UserModel = require("../../models/users/UserModel");
+const {
+  CheckAssociateService,
+} = require("../../services/common/CheckAssociateService");
+const { deleteServices } = require("../../services/common/DeleteServices");
+const {
+  FindSingleItemServices,
+} = require("../../services/common/FindSingleItemServices");
+const { ListServices } = require("../../services/common/ListServices");
 const CreateToken = require("../../utility/CreateToken");
 
 exports.registration = async (req, res) => {
@@ -79,7 +90,7 @@ exports.login = async (req, res) => {
         .json({ status: "fail", message: "Wrong password !" });
     }
 
-    const token = await CreateToken({id:data._id});
+    const token = await CreateToken({ id: data._id });
     const { password: removedPassword, ...responseData } = data.toObject();
     res
       .status(200)
@@ -90,33 +101,13 @@ exports.login = async (req, res) => {
 };
 
 exports.findUser = async (req, res) => {
-  try {
-    const data = await UserModel.findById(req.params.id).select("-password");
-    if (!data) {
-      res
-        .status(400)
-        .json({ success: "fail", message: "The user is not found" });
-    } else {
-      res.status(200).json({ success: "success", data: data });
-    }
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
-  }
+  const data = await FindSingleItemServices(req, UserModel);
+  return res.status(200).json(data);
 };
 
 exports.findUserList = async (req, res) => {
-  try {
-    const data = await UserModel.find().select("-password -isAdmin");
-    const count = data.length; // Counting the number of users
-    
-    if (count === 0) {
-      res.status(400).json({ success: "fail", message: "Not found user list!" });
-    } else {
-      res.status(200).json({ success: "success", count: count, data: data });
-    }
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
-  }
+  const data = await ListServices(req, UserModel);
+  return res.status(200).json(data);
 };
 
 exports.updateUser = async (req, res) => {
@@ -137,36 +128,47 @@ exports.updateUser = async (req, res) => {
 };
 
 exports.deleteUser = async (req, res) => {
-  try {
-    const data = await UserModel.findById(req.params.id);
-    if (!data) return res.status(400).send("Invalid User");
-
-    await UserModel.findByIdAndDelete(req.params.id).then((data) => {
-      if (data) {
-        return res
-          .status(200)
-          .send({ success: "success", message: "User is deleted!" });
-      } else {
-        return res
-          .status(400)
-          .send({ success: "fail", message: "User delete fail!" });
-      }
-    });
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
+  const DeleteID = req.params.id;
+  let CheckAssociate = await CheckAssociateService(
+    { userID: new mongoose.Types.ObjectId(DeleteID) },
+    BorrowModel
+  );
+  if (CheckAssociate) {
+    return res
+      .status(200)
+      .json({ status: "associate", data: "Associated with Borrow" });
+  } else {
+    const data = await deleteServices(req, UserModel);
+    return res.status(200).json(data);
   }
 };
+
+// exports.deleteBook = async (req, res) => {
+//   const DeleteID = req.params.id;
+// let CheckAssociate = await CheckAssociateService(
+//   { bookID: new mongoose.Types.ObjectId(DeleteID) },
+//   BorrowModel
+// );
+// if (CheckAssociate) {
+//   return res
+//     .status(200)
+//     .json({ status: "associate", data: "Associated with Borrow" });
+// } else {
+// const data = await deleteServices(req, BookModel);
+// return res.status(200).json(data);
+//   }
+// };
 
 exports.updateIsAdmin = async (req, res) => {
   const id = req.params.id;
   const isAdmin = req.body.isAdmin;
   const existUser = await UserModel.findOne({ id });
-    if (existUser) {
-      return res.status(400).json({
-        status: "fail",
-        message: "User not found",
-      });
-    }
+  if (existUser) {
+    return res.status(400).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
 
   UserModel.findByIdAndUpdate(id, { $set: { isAdmin: isAdmin } }, { new: true })
     .then((UpdateIsAdmin) => {

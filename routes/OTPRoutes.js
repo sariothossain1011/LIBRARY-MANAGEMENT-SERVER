@@ -1,6 +1,7 @@
 const express = require('express');
-const { RecoverVerifyEmail, RecoverResetPass, RecoverVerifyOTP } = require('../controllers/users/OTPController');
+const { RecoverVerifyEmail, RecoverVerifyOTP, RecoverResetPass } = require('../controllers/users/OTPController');
 const router = express.Router()
+
 
 
 router.get('/RecoverVerifyEmail/:email',RecoverVerifyEmail)

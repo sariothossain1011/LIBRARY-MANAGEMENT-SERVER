@@ -1,5 +1,15 @@
-const CategoriesModel = require("../../models/books/CategoryModel");
+const { default: mongoose } = require("mongoose");
 
+const BookModel = require("../../models/books/BookModel");
+const CategoriesModel = require("../../models/books/CategoryModel");
+const {
+  CheckAssociateService,
+} = require("../../services/common/CheckAssociateService");
+const { deleteServices } = require("../../services/common/DeleteServices");
+const {
+  FindSingleItemServices,
+} = require("../../services/common/FindSingleItemServices");
+const { ListServices } = require("../../services/common/ListServices");
 
 exports.createCategories = async (req, res) => {
   try {
@@ -25,33 +35,13 @@ exports.createCategories = async (req, res) => {
 };
 
 exports.findCategories = async (req, res) => {
-  try {
-    const data = await CategoriesModel.findById(req.params.id);
-    if (!data) {
-      res
-        .status(400)
-        .json({ success: "fail", message: "Not found categories" });
-    } else {
-      res.status(200).json({ success: "success", data: data });
-    }
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
-  }
+  const data = await FindSingleItemServices(req, CategoriesModel);
+  return res.status(200).json(data);
 };
 
 exports.findCategoriesList = async (req, res) => {
-  try {
-    const data = await CategoriesModel.find();
-    const count = data.length; // Counting the number of users
-    
-    if (count === 0) {
-      res.status(400).json({ success: "fail", message: "Not found user category!" });
-    } else {
-      res.status(200).json({ success: "success", count: count, data: data });
-    }
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
-  }
+  const data = await ListServices(req, CategoriesModel);
+  return res.status(200).json(data);
 };
 
 exports.updateCategories = async (req, res) => {
@@ -76,22 +66,18 @@ exports.updateCategories = async (req, res) => {
 };
 
 exports.deleteCategories = async (req, res) => {
-  try {
-    const data = await CategoriesModel.findById(req.params.id);
-    if (!data) return res.status(400).send("Invalid Categories");
-
-    await CategoriesModel.findByIdAndDelete(req.params.id).then((data) => {
-      if (data) {
-        return res
-          .status(200)
-          .send({ success: "success", message: "Categories is deleted!" });
-      } else {
-        return res
-          .status(400)
-          .send({ success: "fail", message: "Categories delete fail!" });
-      }
-    });
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
+  const DeleteID = req.params.id;
+  let CheckAssociate = await CheckAssociateService(
+    { categoryID: new mongoose.Types.ObjectId(DeleteID) },
+    BookModel
+  );
+  if (CheckAssociate) {
+    return res
+      .status(200)
+      .json({ status: "associate", data: "Associated with Book" });
+  } else {
+    const data = await deleteServices(req, CategoriesModel);
+    return res.status(200).json(data);
   }
 };
+

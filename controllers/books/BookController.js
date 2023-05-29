@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const BookModel = require("../../models/books/BookModel");
 const CategoriesModel = require("../../models/books/CategoryModel");
+const { deleteServices } = require("../../services/common/DeleteServices");
+const { ListServices } = require("../../services/common/ListServices");
+const { FindSingleItemServices } = require("../../services/common/FindSingleItemServices");
+const BorrowModel = require("../../models/books/BorrowModel");
+const { CheckAssociateService } = require("../../services/common/CheckAssociateService");
 
 exports.addBook = async (req, res) => {
   try {
@@ -55,34 +60,13 @@ exports.addBook = async (req, res) => {
 };
 
 exports.findBook = async (req, res) => {
-  try {
-    const data = await BookModel.findById(req.params.id).populate("categoryID");
-    if (!data) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Not Book found ",
-      });
-    } else {
-      res.status(200).json({ success: "success", data: data });
-    }
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
-  }
+  const data = await FindSingleItemServices(req, BookModel);
+  return res.status(200).json(data);
 };
 
 exports.findBookList = async (req, res) => {
-  try {
-    const data = await BookModel.find().populate("categoryID");
-    const count = data.length; // Counting the number of users
-    
-    if (count === 0) {
-      res.status(400).json({ success: "fail", message: "Not found user book!" });
-    } else {
-      res.status(200).json({ success: "success", count: count, data: data });
-    }
-  } catch (error) {
-    return res.status(400).json({ status: "success", data: error.toString() });
-  }
+  const data = await ListServices(req, BookModel);
+  return res.status(200).json(data);
 };
 
 exports.updateBook = async (req, res) => {
@@ -113,23 +97,20 @@ exports.updateBook = async (req, res) => {
   }
 };
 
-exports.deleteBook = async (req, res) => {
-  try {
-    const data = await BookModel.findById(req.params.id);
-    if (!data) return res.status(400).send("Invalid Book");
 
-    await BookModel.findByIdAndDelete(req.params.id).then((data) => {
-      if (data) {
-        return res
-          .status(200)
-          .send({ success: "success", message: "Book is deleted!" });
-      } else {
-        return res
-          .status(400)
-          .send({ success: "fail", message: "Book delete fail!" });
-      }
-    });
-  } catch (error) {
-    return res.status(400).json({ success: "fail", data: error.toString() });
-  }
+exports.deleteBook = async (req, res) => {
+    const DeleteID = req.params.id;
+  let CheckAssociate = await CheckAssociateService(
+    { bookID: new mongoose.Types.ObjectId(DeleteID) },
+    BorrowModel
+  );
+  if (CheckAssociate) {
+    return res
+      .status(200)
+      .json({ status: "associate", data: "Associated with Borrow" });
+  } else {
+  const data = await deleteServices(req, BookModel);
+  return res.status(200).json(data);
+    }
 };
+
