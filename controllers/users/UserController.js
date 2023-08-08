@@ -12,24 +12,33 @@ const {
 } = require("../../services/common/FindSingleItemServices");
 const { ListServices } = require("../../services/common/ListServices");
 const CreateToken = require("../../utility/CreateToken");
+const CloudinaryImage = require("../../utility/CloudinaryImage");
 
 exports.registration = async (req, res) => {
   try {
-    const { name, department, roll, email, mobile, password } = req.body;
+    const {
+      name,
+      email,
+      address,
+      password,
+      category,
+      roll,
+      department,
+      semester,
+      mobile,
+      isAdmin,
+    } = req.body;
     if (!name.trim()) {
       return res.json({ error: "Name is required" });
-    }
-    if (!department) {
-      return res.json({ error: "Email is required" });
-    }
-    if (!roll) {
-      return res.json({ error: "Email is required" });
     }
     if (!email) {
       return res.json({ error: "Email is required" });
     }
-    if (!mobile) {
-      return res.json({ error: "Mobile is required" });
+    if (!address) {
+      return res.json({ error: "Address is required" });
+    }
+    if (!category) {
+      return res.json({ error: "Category is required" });
     }
     if (!password || password.length < 6) {
       return res.json({ error: "Password must be at least 6 characters long" });
@@ -47,18 +56,22 @@ exports.registration = async (req, res) => {
 
     const data = await new UserModel({
       name,
-      department,
-      roll,
       email,
+      address,
+      category,
+      roll,
+      department,
+      semester,
       mobile,
+      isAdmin,
       password: hashedPassword,
     }).save();
 
     const { password: removedPassword, ...responseData } = data.toObject();
 
-    return res.status(400).json({ status: "success", data: responseData });
+    return res.status(200).json({ status: "success", data: responseData });
   } catch (error) {
-    return res.status(400).json({ status: "success", data: error.toString() });
+    return res.status(400).json({ status: "fail", data: error.toString() });
   }
 };
 
@@ -124,6 +137,23 @@ exports.updateUser = async (req, res) => {
     res.status(200).json({ success: "success", data: data });
   } catch (error) {
     return res.status(400).json({ success: "fail", data: error.toString() });
+  }
+};
+
+exports.updateUserImage = async (req, res) => {
+  try {
+    const url = await CloudinaryImage(req.files.photo);
+
+    const data = await UserModel.findByIdAndUpdate(
+      req.params.id,
+      { photo: url },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ success: "Image uploaded", imageUrl: data.photo });
+  } catch (error) {
+    res.status(400).json({ success: "fail", data: error.toString() });
   }
 };
 

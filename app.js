@@ -6,6 +6,7 @@ require("./db/conn");
 dotenv.config({ path: "./config.env" });
 
 // SECURITY MIDDLEWARE
+const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
@@ -17,6 +18,7 @@ const ErrorHandler = require("./middleware/ErrorHandler");
 
 
 //security middleware implement
+app.use(fileUpload({useTempFiles:true}))
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());

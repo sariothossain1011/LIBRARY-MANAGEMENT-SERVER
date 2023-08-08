@@ -1,8 +1,11 @@
 const BookModel = require("../../models/books/BookModel");
+const BorrowItemsModel = require("../../models/books/BorrowItems");
 const BorrowModel = require("../../models/books/BorrowModel");
 const UserModel = require("../../models/users/UserModel");
 const { deleteServices } = require("../../services/common/DeleteServices");
-const { FindSingleItemServices } = require("../../services/common/FindSingleItemServices");
+const {
+  FindSingleItemServices,
+} = require("../../services/common/FindSingleItemServices");
 const { ListServices } = require("../../services/common/ListServices");
 
 exports.borrowRequest = async (req, res) => {
@@ -64,6 +67,11 @@ exports.findBorrowList = async (req, res) => {
   return res.status(200).json(data);
 };
 
+exports.findBorrowItems = async (req, res) => {
+  const data = await ListServices(req, BorrowItemsModel);
+  return res.status(200).json(data);
+};
+
 exports.updateBorrowStatus = async (req, res) => {
   try {
     const status = req.body.status;
@@ -81,6 +89,8 @@ exports.updateBorrowStatus = async (req, res) => {
     if (status === "approved") {
       // Increase the borrow value by 1
       book.borrowed = (parseInt(book.borrowed) + 1).toString();
+      const borrowItems = await new BorrowItemsModel({bookID:req.body.bookID,userID:req.body.userID});
+      await borrowItems.save()
     } else if (status === "return") {
       // Decrease the borrow value by 1
       if (parseInt(book.borrowed) > 0) {
@@ -93,9 +103,10 @@ exports.updateBorrowStatus = async (req, res) => {
       return res.status(404).send({ success: "fail", message: "Update fail!" });
     }
 
-    const data = await BorrowModel.findByIdAndUpdate(req.params.id, status, {
+    const data = await BorrowModel.findByIdAndUpdate(req.params.id,{status:status}, {
       new: true,
     });
+    console.log({data})
     if (!data) {
       return res.status(404).send({ success: "fail", message: "Update fail!" });
     }

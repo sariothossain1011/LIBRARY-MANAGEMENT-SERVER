@@ -8,15 +8,17 @@ const {
   deleteUser,
   findUserList,
   updateIsAdmin,
+  updateUserImage,
 } = require("../controllers/users/UserController");
 
 const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
 router.post("/registration", registration);
-router.get("/login", login);
+router.post("/login", login);
 router.get("/findUser/:id", requireSignIn, findUser);
 router.get("/findUserList/:id", requireSignIn, findUserList);
-router.post("/updateUser/:id", requireSignIn, isAdmin, updateUser);
+router.post("/updateUser/:id", requireSignIn, updateUser);
+router.post("/updateUserImage/:id", requireSignIn, updateUserImage);
 router.get("/deleteUser/:id", requireSignIn, isAdmin, deleteUser);
 router.get("/findUserList/", requireSignIn, findUserList);
 

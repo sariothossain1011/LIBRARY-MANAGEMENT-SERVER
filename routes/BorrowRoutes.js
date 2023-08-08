@@ -7,18 +7,23 @@ const {
   deleteBorrow,
   updateBorrowStatus,
   statusList,
+  findBorrowItems,
 } = require("../controllers/books/BorrowController");
 const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
 router.post("/borrowRequest", requireSignIn, borrowRequest);
 router.get("/findBorrow/:id", requireSignIn, findBorrow);
 router.get("/findBorrowList", requireSignIn, findBorrowList);
+
+router.get("/findBorrowItems", requireSignIn, findBorrowItems);
+
 router.post(
   "/updateBorrowStatus/:id",
   requireSignIn,
   isAdmin,
   updateBorrowStatus
 );
+
 router.get("/deleteBorrow/:id", requireSignIn, deleteBorrow);
 
 router.get("/statusList/:status",requireSignIn, statusList); // request/approved/cancelled/return

@@ -2,22 +2,37 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
+    photo: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/db8l1ulfq/image/upload/v1682591922/user-profile_tfugwz.png",
+    },
     name: {
-      type: String,
-    },
-    department: {
-      type: String,
-    },
-    roll: {
       type: String,
     },
     email: {
       type: String,
     },
-    mobile: {
+    address: {
       type: String,
     },
     password: {
+      type: String,
+    },
+    category: {
+      type: String,
+    },
+    roll: {
+      type: String,
+    }
+    ,
+    department: {
+      type: String,
+    },
+    semester: {
+      type: String,
+    },
+    mobile: {
       type: String,
     },
     isAdmin: {

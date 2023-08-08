@@ -3,7 +3,7 @@ const { ObjectId } = mongoose.Schema;
 
 const BookSchema = new mongoose.Schema(
   {
-    coverImage: {
+    photo: {
       type: String,
       default:
         "https://res.cloudinary.com/db8l1ulfq/image/upload/v1682591922/user-profile_tfugwz.png",

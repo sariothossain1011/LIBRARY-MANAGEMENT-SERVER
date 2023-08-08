@@ -3,12 +3,18 @@ const BookModel = require("../../models/books/BookModel");
 const CategoriesModel = require("../../models/books/CategoryModel");
 const { deleteServices } = require("../../services/common/DeleteServices");
 const { ListServices } = require("../../services/common/ListServices");
-const { FindSingleItemServices } = require("../../services/common/FindSingleItemServices");
+const {
+  FindSingleItemServices,
+} = require("../../services/common/FindSingleItemServices");
 const BorrowModel = require("../../models/books/BorrowModel");
-const { CheckAssociateService } = require("../../services/common/CheckAssociateService");
+const {
+  CheckAssociateService,
+} = require("../../services/common/CheckAssociateService");
+const CloudinaryImage = require("../../utility/CloudinaryImage");
 
 exports.addBook = async (req, res) => {
   try {
+    const photo = await CloudinaryImage(req.files.photo);
     const {
       categoryID,
       bookTitle,
@@ -21,8 +27,10 @@ exports.addBook = async (req, res) => {
 
     // validation
     switch (true) {
+      case !photo?.trim():
+        return res.json({ error: "Photo is required" });
       case !categoryID?.trim():
-        return res.json({ error: "categoryID is required" });
+        return res.json({ error: "CategoryID is required" });
       case !bookTitle?.trim():
         return res.json({ error: "Book Title is required" });
       case !description?.trim():
@@ -30,11 +38,11 @@ exports.addBook = async (req, res) => {
       case !author?.trim():
         return res.json({ error: "Author is required" });
       case !publicationDate?.trim():
-        return res.json({ error: "publicationDate is required" });
+        return res.json({ error: "PublicationDate is required" });
       case !publisher?.trim():
-        return res.json({ error: "publisher is required" });
+        return res.json({ error: "Publisher is required" });
       case !quantity?.trim():
-        return res.json({ error: "quantity is required" });
+        return res.json({ error: "Quantity is required" });
     }
 
     const category = await CategoriesModel.findById(req.body.categoryID);
@@ -51,11 +59,11 @@ exports.addBook = async (req, res) => {
     }
 
     // create product
-    const data = new BookModel({ ...req.body });
+    const data = new BookModel({photo,...req.body });
     await data.save();
     return res.status(200).json({ status: "success", data: data });
   } catch (error) {
-    return res.status(400).json({ status: "success", data: error.toString() });
+    return res.status(400).json({ status: "fail", data: error.toString() });
   }
 };
 
@@ -97,9 +105,25 @@ exports.updateBook = async (req, res) => {
   }
 };
 
+exports.updateBookImage = async (req, res) => {
+  try {
+    const url = await CloudinaryImage(req.files.photo);
+
+    const data = await BookModel.findByIdAndUpdate(
+      req.params.id,
+      { photo: url },
+      {
+        new: true,
+      }
+    );
+    res.status(200).json({ success: "Image uploaded", imageUrl: url });
+  } catch (error) {
+    res.status(400).json({ success: "fail", data: error.toString() });
+  }
+};
 
 exports.deleteBook = async (req, res) => {
-    const DeleteID = req.params.id;
+  const DeleteID = req.params.id;
   let CheckAssociate = await CheckAssociateService(
     { bookID: new mongoose.Types.ObjectId(DeleteID) },
     BorrowModel
@@ -109,8 +133,7 @@ exports.deleteBook = async (req, res) => {
       .status(200)
       .json({ status: "associate", data: "Associated with Borrow" });
   } else {
-  const data = await deleteServices(req, BookModel);
-  return res.status(200).json(data);
-    }
+    const data = await deleteServices(req, BookModel);
+    return res.status(200).json(data);
+  }
 };
-
