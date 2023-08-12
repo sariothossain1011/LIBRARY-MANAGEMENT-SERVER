@@ -8,6 +8,7 @@ const {
 } = require("../../services/common/FindSingleItemServices");
 const { ListServices } = require("../../services/common/ListServices");
 
+
 exports.borrowRequest = async (req, res) => {
   try {
     const { bookID, userID } = req.body;
@@ -126,6 +127,27 @@ exports.statusList = async (req, res) => {
   try {
     const { status } = req.params;
     const data = await BorrowModel.find({ status: { $eq: status } });
+    const count = data.length; // Counting the number of users
+
+    if (count === 0) {
+      res
+        .status(400)
+        .json({ success: "fail", message: "Not found user borrow!" });
+    } else {
+      res.status(200).json({ success: "success", count: count, data: data });
+    }
+  } catch (error) {
+    return res.status(400).json({ status: "success", data: error.toString() });
+  }
+};
+
+
+
+
+exports.allUserBorrow = async (req, res) => {
+  try {
+    const { userID } = req.params;
+    const data = await BorrowModel.find({ userID: { $eq: userID } });
     const count = data.length; // Counting the number of users
 
     if (count === 0) {

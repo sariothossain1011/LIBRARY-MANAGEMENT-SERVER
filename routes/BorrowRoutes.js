@@ -8,6 +8,7 @@ const {
   updateBorrowStatus,
   statusList,
   findBorrowItems,
+  allUserBorrow,
 } = require("../controllers/books/BorrowController");
 const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
@@ -23,9 +24,9 @@ router.post(
   isAdmin,
   updateBorrowStatus
 );
-
 router.get("/deleteBorrow/:id", requireSignIn, deleteBorrow);
-
 router.get("/statusList/:status",requireSignIn, statusList); // request/approved/cancelled/return
+
+router.get("/allUserBorrow/:userID",requireSignIn, allUserBorrow);
 
 module.exports = router;

@@ -45,22 +45,26 @@ exports.RecoverVerifyOTP = async(req,res)=>{
 
 }
 
-exports.RecoverResetPass = async(req,res)=>{
-    let email = req.body['email']
-    let OTPCode = req.body['otp']
-    let NewPass=req.body['password']
-    let statusUpdate=1;
+exports.RecoverResetPass = async (req, res) => {
+    let email = req.body['email'];
+    let OTPCode = req.body['otp'];
+    let NewPass = req.body['password'];
+    let statusUpdate = 1;
     try {
-        let OTPCount =(await OTPModel.aggregate([{$match: {email: email,otp:OTPCode,status:statusUpdate}}, {$count: "total"}]))
-        if(OTPCount.length>0){
-            let UpdatePass = await UserModel.updateOne({email:email},{password:hashPassword(NewPass)});
-            res.status(200).json({status:"success",data:UpdatePass})
-        }else{
-            res.status(400).json({status:"fail",data:"Invalid OTP Code"})
-        }
-        
-    } catch (error) {
-        res.status(400).json({status:"fail",data:error})
-    }
+        let OTPCount = await OTPModel.aggregate([
+            { $match: { email: email, otp: OTPCode, status: statusUpdate } },
+            { $count: "total" }
+        ]);
 
+        if (OTPCount.length > 0) {
+            let hashedPassword = await hashPassword(NewPass); // Await the hashPassword function
+            let UpdatePass = await UserModel.updateOne({ email: email }, { password: hashedPassword });
+            res.status(200).json({ status: "success", data: UpdatePass });
+        } else {
+            res.status(400).json({ status: "fail", data: "Invalid OTP Code" });
+        }
+
+    } catch (error) {
+        res.status(400).json({ status: "fail", data: error });
+    }
 }
