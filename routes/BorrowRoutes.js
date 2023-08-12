@@ -27,6 +27,6 @@ router.post(
 router.get("/deleteBorrow/:id", requireSignIn, deleteBorrow);
 router.get("/statusList/:status",requireSignIn, statusList); // request/approved/cancelled/return
 
-router.get("/allUserBorrow/:userID",requireSignIn, allUserBorrow);
+router.get("/allUserBorrow/:id",requireSignIn, allUserBorrow);
 
 module.exports = router;

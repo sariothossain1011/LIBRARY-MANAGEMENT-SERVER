@@ -146,8 +146,8 @@ exports.statusList = async (req, res) => {
 
 exports.allUserBorrow = async (req, res) => {
   try {
-    const { userID } = req.params;
-    const data = await BorrowModel.find({ userID: { $eq: userID } });
+    const id = req.params.id;
+    const data = await BorrowModel.find({ userID : { $eq: id } });
     const count = data.length; // Counting the number of users
 
     if (count === 0) {

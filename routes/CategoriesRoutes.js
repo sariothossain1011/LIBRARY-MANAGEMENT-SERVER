@@ -11,8 +11,8 @@ const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
 
 router.post("/createCategories", requireSignIn, isAdmin, createCategories);
-router.get("/findCategories/:id", requireSignIn, findCategories);
-router.get("/findCategoriesList", requireSignIn, findCategoriesList);
+router.get("/findCategories/:id", findCategories);
+router.get("/findCategoriesList", findCategoriesList);
 router.post("/updateCategories/:id", requireSignIn, isAdmin, updateCategories);
 router.get("/deleteCategories/:id", requireSignIn, isAdmin, deleteCategories);
 
