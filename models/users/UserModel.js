@@ -32,7 +32,13 @@ const UserSchema = new mongoose.Schema(
     semester: {
       type: String,
     },
+    session:{
+      type:String,
+    },
     mobile: {
+      type: String,
+    },
+    gender: {
       type: String,
     },
     isAdmin: {

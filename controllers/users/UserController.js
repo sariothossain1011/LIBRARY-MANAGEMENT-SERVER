@@ -134,7 +134,7 @@ exports.findUserList = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const postBody = req.body;
-    const data = await UserModel.findByIdAndUpdate(req.params.id, postBody, {
+    const data = await UserModel.findByIdAndUpdate(req.user.id, postBody, {
       new: true,
     }).select("-password -isAdmin");
     if (!data) {

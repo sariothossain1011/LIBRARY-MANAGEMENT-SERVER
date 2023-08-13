@@ -17,7 +17,7 @@ router.post("/registration", registration);
 router.post("/login", login);
 router.get("/findUserData", requireSignIn, findUserData);
 router.get("/findUserList/:id", requireSignIn, findUserList);
-router.post("/updateUser/:id", requireSignIn, updateUser);
+router.post("/updateUser", requireSignIn, updateUser);
 router.post("/updateUserImage/:id", requireSignIn, updateUserImage);
 router.get("/deleteUser/:id", requireSignIn, isAdmin, deleteUser);
 router.get("/findUserList/", requireSignIn, findUserList);
