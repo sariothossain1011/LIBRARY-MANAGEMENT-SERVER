@@ -19,15 +19,13 @@
 const deleteServices = async (Request, DataModel) => {
   try {
     let DeleteID = Request.params.id;
-    let QueryObject = {};
-    QueryObject["_id"] = DeleteID;
 
-    const data = await DataModel.findById(QueryObject);
+    const data = await DataModel.findById(DeleteID);
     if (!data) return { status: "fail", message: "Invalid" };
 
-    let Delete = await DataModel.findByIdAndDelete(QueryObject);
+    let Delete = await DataModel.findByIdAndDelete(DeleteID);
     return { status: "success", delete: Delete };
   } catch (error) {
-    return { status: "fail", data: error.toString() };
-  }
+  return { status: "fail", message: "An error occurred", error: error.message };
+}
 };

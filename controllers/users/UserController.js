@@ -165,37 +165,43 @@ exports.updateUserImage = async (req, res) => {
   }
 };
 
+
+
 exports.deleteUser = async (req, res) => {
-  const DeleteID = req.params.id;
-  let CheckAssociate = await CheckAssociateService(
-    { userID: new mongoose.Types.ObjectId(DeleteID) },
-    BorrowModel
-  );
-  if (CheckAssociate) {
-    return res
-      .status(200)
-      .json({ status: "associate", data: "Associated with Borrow" });
-  } else {
-    const data = await deleteServices(req, UserModel);
-    return res.status(200).json(data);
+  try {
+    const user = await UserModel.findById(req.params.id);
+    if (!user) return res.status(400).send("Invalid User");
+  
+    const deletedUser = await UserModel.findByIdAndDelete(req.params.id);
+    if (deletedUser) {
+      return res
+        .status(200)
+        .send({ success: true, message: "User is deleted!" });
+    } else {
+      return res
+        .status(400)
+        .send({ success: false, message: "User delete fail!" });
+    }
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+  
+}; 
+
+exports.AdminList = async (req, res) => {
+  try {
+    const admin = await UserModel.find({ isAdmin: true});
+    if (!admin) {
+      res
+        .status(500)
+        .json({ success: false, message: "Not found Admin List" });
+    } else {
+      res.status(200).json({ admin });
+    }
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error });
   }
 };
-
-// exports.deleteBook = async (req, res) => {
-//   const DeleteID = req.params.id;
-// let CheckAssociate = await CheckAssociateService(
-//   { bookID: new mongoose.Types.ObjectId(DeleteID) },
-//   BorrowModel
-// );
-// if (CheckAssociate) {
-//   return res
-//     .status(200)
-//     .json({ status: "associate", data: "Associated with Borrow" });
-// } else {
-// const data = await deleteServices(req, BookModel);
-// return res.status(200).json(data);
-//   }
-// };
 
 exports.updateIsAdmin = async (req, res) => {
   const id = req.params.id;
