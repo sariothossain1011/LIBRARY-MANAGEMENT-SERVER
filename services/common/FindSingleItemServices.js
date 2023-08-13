@@ -1,8 +1,8 @@
 exports.FindSingleItemServices = async (Request, DataModel) => {
   try {
-    const data = await DataModel.findById(Request.user.id);
+    const data = await DataModel.findById(Request.params.id);
     if (!data) {
-      return { success: "fail", message: "Not found" };
+      return { success: "fail", message: "Not found " };
     } else {
       return { success: "success", data: data };
     }

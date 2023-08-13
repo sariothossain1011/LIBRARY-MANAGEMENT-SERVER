@@ -114,8 +114,16 @@ exports.login = async (req, res) => {
 };
 
 exports.findUserData = async (req, res) => {
-  const data = await FindSingleItemServices(req, UserModel);
-  return res.status(200).json(data);
+  try {
+    const data = await UserModel.findById(req.user.id);
+    if (!data) {
+      return { success: "fail", message: "Not found " };
+    } else {
+      res.status(200).json({ success: "Success", data: data });
+    }
+  } catch (error) {
+    res.status(400).json({ success: "fail", data: error.toString() });
+  }
 };
 
 exports.findUserList = async (req, res) => {
