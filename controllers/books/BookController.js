@@ -14,8 +14,9 @@ const CloudinaryImage = require("../../utility/CloudinaryImage");
 
 exports.addBook = async (req, res) => {
   try {
-    const photo = await CloudinaryImage(req.files.photo);
+    // const photo = await CloudinaryImage(req.files.photo);
     const {
+      photo,
       categoryID,
       bookTitle,
       description,
@@ -59,7 +60,7 @@ exports.addBook = async (req, res) => {
     }
 
     // create product
-    const data = new BookModel({photo,...req.body });
+    const data = new BookModel({...req.body });
     await data.save();
     return res.status(200).json({ status: "success", data: data });
   } catch (error) {
