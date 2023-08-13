@@ -64,8 +64,20 @@ exports.findBorrow = async (req, res) => {
 };
 
 exports.findBorrowList = async (req, res) => {
-  const data = await ListServices(req, BorrowModel);
-  return res.status(200).json(data);
+  // const data = await ListServices(req, BorrowModel);
+  // return res.status(200).json(data);
+  try {
+    const data = await BorrowModel.find().populate("bookID").populate("userID");
+    const count = data.length; // Counting the number of users
+
+    if (count === 0) {
+      res.status(400).json({ success: "fail", message: "Not found user category!" });
+    } else {
+      res.status(200).json({ success: "success", count: count, data: data });
+    }
+  } catch (error) {
+    res.status(400).json({ success: "fail", data: error.toString() });
+  }
 };
 
 exports.findBorrowItems = async (req, res) => {
