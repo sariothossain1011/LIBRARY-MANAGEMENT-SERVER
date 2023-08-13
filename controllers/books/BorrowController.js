@@ -152,7 +152,7 @@ exports.allUserBorrow = async (req, res) => {
   try {
     const data = await BorrowModel.find({
       userID: { $eq: req.user.id },
-    }).populate("category");
+    }).populate("bookID");
     // console.log("controller",req.user.id)
     const count = data.length;
 

@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.findUser = async (req, res) => {
+exports.findUserData = async (req, res) => {
   const data = await FindSingleItemServices(req, UserModel);
   return res.status(200).json(data);
 };

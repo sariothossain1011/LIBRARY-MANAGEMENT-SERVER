@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   registration,
   login,
-  findUser,
+  findUserData,
   updateUser,
   deleteUser,
   findUserList,
@@ -15,7 +15,7 @@ const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
 router.post("/registration", registration);
 router.post("/login", login);
-router.get("/findUser/:id", requireSignIn, findUser);
+router.get("/findUserData", requireSignIn, findUserData);
 router.get("/findUserList/:id", requireSignIn, findUserList);
 router.post("/updateUser/:id", requireSignIn, updateUser);
 router.post("/updateUserImage/:id", requireSignIn, updateUserImage);
