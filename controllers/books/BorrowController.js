@@ -8,10 +8,10 @@ const {
 } = require("../../services/common/FindSingleItemServices");
 const { ListServices } = require("../../services/common/ListServices");
 
-
 exports.borrowRequest = async (req, res) => {
   try {
-    const { bookID, userID } = req.body;
+    const bookID = req.params.id;
+    const userID = req.user.id;
 
     // Validation
     switch (true) {
@@ -77,7 +77,7 @@ exports.updateBorrowStatus = async (req, res) => {
   try {
     const status = req.body.status;
 
-    const category = await UserModel.findById(req.body.userID);
+    const category = await UserModel.findById(req.user.id);
     if (!category) {
       return res.status(400).send("Invalid userID");
     }
@@ -90,8 +90,11 @@ exports.updateBorrowStatus = async (req, res) => {
     if (status === "approved") {
       // Increase the borrow value by 1
       book.borrowed = (parseInt(book.borrowed) + 1).toString();
-      const borrowItems = await new BorrowItemsModel({bookID:req.body.bookID,userID:req.body.userID});
-      await borrowItems.save()
+      const borrowItems = await new BorrowItemsModel({
+        bookID: req.body.bookID,
+        userID: req.user.id,
+      });
+      await borrowItems.save();
     } else if (status === "return") {
       // Decrease the borrow value by 1
       if (parseInt(book.borrowed) > 0) {
@@ -104,10 +107,14 @@ exports.updateBorrowStatus = async (req, res) => {
       return res.status(404).send({ success: "fail", message: "Update fail!" });
     }
 
-    const data = await BorrowModel.findByIdAndUpdate(req.params.id,{status:status}, {
-      new: true,
-    });
-    console.log({data})
+    const data = await BorrowModel.findByIdAndUpdate(
+      req.params.id,
+      { status: status },
+      {
+        new: true,
+      }
+    );
+    console.log({ data });
     if (!data) {
       return res.status(404).send({ success: "fail", message: "Update fail!" });
     }
@@ -141,14 +148,13 @@ exports.statusList = async (req, res) => {
   }
 };
 
-
-
-
 exports.allUserBorrow = async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = await BorrowModel.find({ userID : { $eq: id } });
-    const count = data.length; // Counting the number of users
+    const data = await BorrowModel.find({
+      userID: { $eq: req.user.id },
+    }).populate("category");
+    // console.log("controller",req.user.id)
+    const count = data.length;
 
     if (count === 0) {
       res
@@ -158,6 +164,8 @@ exports.allUserBorrow = async (req, res) => {
       res.status(200).json({ success: "success", count: count, data: data });
     }
   } catch (error) {
-    return res.status(400).json({ status: "success", data: error.toString() });
+    return res
+      .status(500)
+      .json({ success: "fail", message: "Internal server error" });
   }
 };

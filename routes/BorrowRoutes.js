@@ -12,7 +12,7 @@ const {
 } = require("../controllers/books/BorrowController");
 const { requireSignIn, isAdmin } = require("../middleware/Authentication");
 
-router.post("/borrowRequest", requireSignIn, borrowRequest);
+router.post("/borrowRequest/:id", requireSignIn, borrowRequest);
 router.get("/findBorrow/:id", requireSignIn, findBorrow);
 router.get("/findBorrowList", requireSignIn, findBorrowList);
 
@@ -27,6 +27,6 @@ router.post(
 router.get("/deleteBorrow/:id", requireSignIn, deleteBorrow);
 router.get("/statusList/:status",requireSignIn, statusList); // request/approved/cancelled/return
 
-router.get("/allUserBorrow/:id",requireSignIn, allUserBorrow);
+router.get("/allUserBorrow",requireSignIn, allUserBorrow);
 
 module.exports = router;
