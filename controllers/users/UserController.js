@@ -190,13 +190,13 @@ exports.deleteUser = async (req, res) => {
 
 exports.AdminList = async (req, res) => {
   try {
-    const admin = await UserModel.find({ isAdmin: true});
-    if (!admin) {
+    const data = await UserModel.find({ isAdmin: true});
+    if (!data) {
       res
         .status(500)
         .json({ success: false, message: "Not found Admin List" });
     } else {
-      res.status(200).json({ admin });
+      res.status(200).json({data: data} );
     }
   } catch (error) {
     return res.status(400).json({ success: false, message: error });
