@@ -24,8 +24,10 @@ const UserSchema = new mongoose.Schema(
     },
     roll: {
       type: String,
-    }
-    ,
+    },
+    registrationNumber:{
+      type:String,
+    },
     department: {
       type: String,
     },
