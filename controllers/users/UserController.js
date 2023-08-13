@@ -196,7 +196,7 @@ exports.AdminList = async (req, res) => {
         .status(500)
         .json({ success: false, message: "Not found Admin List" });
     } else {
-      res.status(200).json(data );
+      res.status(200).json({data: data} );
     }
   } catch (error) {
     return res.status(400).json({ success: false, message: error });
